@@ -1,0 +1,334 @@
+---
+title: "SDOH Appalachian Counties"
+author: "Ashley Eitmontas"
+date: "2025-11-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+# Load libraries
+library(tidyverse)   # dplyr, ggplot2, readr, tidyr, etc.
+library(readxl)      # Excel files
+library(janitor)     # clean_names(), tabyl(), etc.
+library(lubridate)   # date/time parsing
+
+```
+
+## Load Data
+
+```{r load-data}
+
+SDOH <- readr::read_csv("SDOH_Census_Tract.csv", show_col_types = FALSE) %>%
+  janitor::clean_names()   # make column names snake_case
+
+```
+
+## Quick Structure & Quality Checks
+
+```{r structure-quality-check}
+
+# Shape & glimpse
+dim(SDOH)          # rows, columns
+names(SDOH)        # column names
+glimpse(SDOH)      # column types & preview
+
+# Check missingness
+colSums(is.na(SDOH)) %>% sort(decreasing = TRUE)
+
+# Duplicates (by all columns)
+dup_count <- SDOH %>% duplicated() %>% sum()
+
+# If you have a natural key (e.g., "id"), check uniqueness
+SDOH %>% count(geo_id, sort = TRUE) %>% filter(n > 1)
+
+```
+
+## Basic Cleaning
+
+```{r basic-cleaning}
+
+# Trim whitespace and standardize text case
+SDOH <- SDOH %>%
+  mutate(
+    across(where(is.character), ~str_squish(.x) |> str_to_title())
+  )
+
+# Remove exact duplicate rows
+SDOH <- SDOH %>% distinct()
+
+# Optional: filter impossible values
+
+SDOH <- SDOH %>%
+  filter(metric_value >= 0 | is.na(metric_value))
+
+# Example: impute median for amount
+
+SDOH <- SDOH %>%
+  # 1) Normalize to character so we can handle text placeholders consistently
+  mutate(metric_value = as.character(metric_value)) %>%
+  # 2) Turn common placeholders into NA *while still character*
+  mutate(metric_value = case_when(
+    metric_value %in% c("Null", "N/A", "NA", "Missing", "NaN", "NaN") ~ NA_character_,
+    TRUE ~ metric_value
+  )) %>%
+  # 3) Parse numeric values (anything non-numeric becomes NA)
+  mutate(metric_value = readr::parse_number(metric_value)) %>%
+  # 4) Keep non-negative values or NA
+  filter(metric_value >= 0 | is.na(metric_value)) %>%
+  # 5) Impute missing with median (computed inline to avoid external variables)
+  mutate(metric_value = tidyr::replace_na(metric_value, median(metric_value, na.rm = TRUE)))
+
+
+```
+
+## 
+
+## Heat Maps
+
+```{r heatmap-appalachian-ohio, message=FALSE, warning=FALSE}
+
+library(sf)
+library(tigris)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+options(tigris_use_cache = TRUE)
+
+# 1) Get Ohio counties shapefile
+ohio_counties <- counties(state = "OH", cb = TRUE, class = "sf")
+
+# 2) Appalachian counties list
+appalachian_ohio <- c("Adams","Athens", "Ashtabula","Belmont","Brown","Carroll","Columbiana",
+                      "Coshocton", "Clermont","Gallia","Guernsey","Harrison","Highland",
+                      "Hocking","Holmes","Jackson","Jefferson","Lawrence",
+                      "Meigs","Monroe","Morgan", "Mahoning","Muskingum","Noble","Perry",
+                      "Pike","Ross","Scioto","Trumbull", "Tuscarawas","Vinton","Washington")
+
+# 3) Filter asthma data
+asthma_data <- SDOH %>%
+  filter(str_detect(metric_name, regex("asthma", ignore_case = TRUE))) %>%
+  mutate(county_name = str_to_title(county_name)) %>%
+  select(county_name, asthma_rate = metric_value)
+
+# 4) Join asthma data to Appalachian counties
+ohio_counties <- ohio_counties %>%
+  mutate(is_appalachian = if_else(NAME %in% appalachian_ohio, TRUE, FALSE)) %>%
+  left_join(asthma_data, by = c("NAME" = "county_name"))
+
+# 5) Plot entire Ohio with Appalachian counties highlighted
+ggplot() +
+  # Base layer: all Ohio counties in light gray
+  geom_sf(data = ohio_counties, fill = "grey90", color = "white") +
+  # Appalachian counties: colored by asthma rate
+  geom_sf(data = filter(ohio_counties, is_appalachian), aes(fill = asthma_rate), color = "white") +
+  # Labels for Appalachian counties
+  geom_sf_text(data = filter(ohio_counties, is_appalachian), aes(label = NAME), size = 2, color = "black") +
+  # Color scale for asthma rates
+  scale_fill_viridis_c(option = "plasma", na.value = "grey80") +
+  labs(title = "Asthma Outcomes in Appalachian Counties (Ohio)",
+       fill = "Asthma Rate") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 16))
+
+```
+
+## Multiple Linear Regression with Backward Selection (based on p-values)
+
+```{r mlr-backward-selection, message=FALSE, warning=FALSE}
+
+# Libraries
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(readr)
+
+# 1) Define Appalachian counties (Ohio)
+appalachian_counties <- c("Adams","Athens", "Ashtabula","Belmont","Brown","Carroll","Columbiana",
+                      "Coshocton", "Clermont","Gallia","Guernsey","Harrison","Highland",
+                      "Hocking","Holmes","Jackson","Jefferson","Lawrence",
+                      "Meigs","Monroe","Morgan", "Mahoning","Muskingum","Noble","Perry",
+                      "Pike","Ross","Scioto","Trumbull", "Tuscarawas","Vinton","Washington"
+)
+
+# 2) Filter to Appalachian counties and pivot long -> wide
+#    (robust to multiple rows per county/metric via summarise first)
+appalachian_wide <- SDOH %>%
+  dplyr::mutate(county_name = stringr::str_to_title(county_name)) %>%
+  dplyr::filter(county_name %in% appalachian_counties) %>%
+  dplyr::select(county_name, metric_name, metric_value) %>%
+  dplyr::group_by(county_name, metric_name) %>%
+  dplyr::summarise(metric_value = dplyr::first(metric_value), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = metric_name, values_from = metric_value)
+
+# 3) Rename EXACT metric columns to analysis-friendly names (based on your unique() list)
+appalachian_wide <- appalachian_wide %>%
+  dplyr::rename(
+    asthma_rate = `Asthma Rate`,
+    poverty_rate = `Poverty Rate`,
+    uninsured_rate = `Uninsured Rate`,
+    unemployment_rate = `Unemployment Rate`,
+    median_household_income = `Median Household Income`,
+    x25_or_older_with_less_than_hs_degree_rate = `25 Or Older With Less Than Hs Degree Rate`
+  )
+
+# 4) Validate required columns exist
+needed <- c("asthma_rate","poverty_rate","uninsured_rate","unemployment_rate",
+            "median_household_income","x25_or_older_with_less_than_hs_degree_rate")
+missing <- setdiff(needed, names(appalachian_wide))
+if (length(missing) > 0) {
+  stop(
+    "Missing columns after pivot/rename: ",
+    paste(missing, collapse = ", "),
+    "\nCheck `unique(SDOH$metric_name)` and adjust the `rename()` mapping if names differ."
+  )
+}
+
+# 5) Make predictors & outcome numeric (robust whether values are already numeric or text like '12%' or '$45,000')
+appalachian_wide <- appalachian_wide %>%
+  dplyr::mutate(
+    dplyr::across(dplyr::all_of(needed),
+                  ~ suppressWarnings(readr::parse_number(as.character(.x))))
+  )
+
+# 6) Build modeling dataset: keep complete cases only
+model_df <- appalachian_wide %>%
+  dplyr::select(dplyr::all_of(c("county_name", needed))) %>%
+  dplyr::filter(stats::complete.cases(dplyr::across(dplyr::all_of(needed))))
+
+# 7) Fit full linear model
+full_formula <- stats::as.formula(
+  "asthma_rate ~ poverty_rate + uninsured_rate + unemployment_rate + median_household_income + x25_or_older_with_less_than_hs_degree_rate"
+)
+full_model <- stats::lm(full_formula, data = model_df)
+cat("Full model summary:\n")
+print(summary(full_model))
+
+# 8) Backward selection by p-values (remove highest p-value > alpha iteratively)
+backward_elimination <- function(df, outcome, predictors, alpha = 0.05) {
+  current_preds <- predictors
+  elimination_path <- c()
+  repeat {
+    frm <- stats::as.formula(
+      paste(outcome, "~", paste(current_preds, collapse = " + "))
+    )
+    fit <- stats::lm(frm, data = df)
+    coefs <- summary(fit)$coefficients
+    # Drop intercept, get p-values for predictors
+    idx <- rownames(coefs) != "(Intercept)"
+    pvals <- coefs[idx, 4]
+    # If any NA p-values (rare), treat them as high to remove
+    if (any(is.na(pvals))) {
+      na_terms <- names(pvals)[is.na(pvals)]
+      removal <- na_terms[1]
+      elimination_path <- c(elimination_path, paste0("Removed (NA p): ", removal))
+      current_preds <- setdiff(current_preds, removal)
+      if (length(current_preds) == 0) return(list(model = fit, predictors = current_preds, path = elimination_path))
+      next
+    }
+    max_p <- max(pvals)
+    worst_term <- names(which.max(pvals))
+    if (max_p > alpha) {
+      elimination_path <- c(elimination_path, paste0("Removed: ", worst_term, " (p = ", signif(max_p, 3), ")"))
+      current_preds <- setdiff(current_preds, worst_term)
+      if (length(current_preds) == 0) return(list(model = fit, predictors = current_preds, path = elimination_path))
+    } else {
+      # All remaining predictors are significant
+      return(list(model = fit, predictors = current_preds, path = elimination_path))
+    }
+  }
+}
+
+predictors <- c("poverty_rate", "uninsured_rate", "unemployment_rate",
+                "median_household_income", "x25_or_older_with_less_than_hs_degree_rate")
+
+be <- backward_elimination(model_df, "asthma_rate", predictors, alpha = 0.05)
+
+cat("\nBackward elimination path:\n")
+print(be$path)
+
+cat("\nFinal model after p-value backward selection:\n")
+print(summary(be$model))
+
+cat("\nFinal predictors retained:\n")
+print(be$predictors)
+
+
+```
+
+## Plots
+
+```{r plots}
+
+# ============================================
+# Libraries
+# ============================================
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(corrplot)
+library(tigris)
+
+# ============================================
+# Data Preparation (Assumes model_df exists)
+
+numeric_vars <- c("asthma_rate","poverty_rate","uninsured_rate",
+                  "unemployment_rate","median_household_income",
+                  "x25_or_older_with_less_than_hs_degree_rate")
+
+# ============================================
+# 4. Geographic Choropleth
+appalachian_counties <- c(
+ "Adams","Athens", "Ashtabula","Belmont","Brown","Carroll","Columbiana",
+                      "Coshocton", "Clermont","Gallia","Guernsey","Harrison","Highland",
+                      "Hocking","Holmes","Jackson","Jefferson","Lawrence",
+                      "Meigs","Monroe","Morgan", "Mahoning","Muskingum","Noble","Perry",
+                      "Pike","Ross","Scioto","Trumbull", "Tuscarawas","Vinton","Washington"
+)
+
+ohio_counties <- counties(state = "OH", cb = TRUE)
+map_data <- ohio_counties %>%
+  filter(NAME %in% appalachian_counties) %>%
+  left_join(model_df, by = c("NAME" = "county_name"))
+
+ggplot(map_data) +
+  geom_sf(aes(fill = asthma_rate), color = "white") +
+  scale_fill_viridis_c(option = "plasma") +
+  labs(title = "Asthma Rate in Appalachian Ohio Counties",
+       fill = "Asthma Rate") +
+  theme_minimal()
+
+# ============================================
+# 5. Predictor vs Outcome Scatterplots
+
+for (var in setdiff(numeric_vars, "asthma_rate")) {
+  p <- ggplot(model_df, aes_string(x = var, y = "asthma_rate")) +
+    geom_point(color = "blue", alpha = 0.6) +
+    geom_smooth(method = "lm", se = FALSE, color = "red") +
+    labs(title = paste("Asthma Rate vs", var),
+         x = var, y = "Asthma Rate") +
+    theme_minimal()
+  print(p)
+}
+
+# ============================================
+# Model Diagnostics
+par(mfrow = c(2, 2))
+plot(full_model)  # Residuals vs Fitted, QQ plot, etc.
+
+# ============================================
+# Backward Elimination Path Visualization
+cat("\nBackward Elimination Steps:\n")
+print(be$path)
+
+# Optional: Convert to data frame for plotting
+elim_df <- data.frame(step = seq_along(be$path), action = be$path)
+ggplot(elim_df, aes(x = step, y = action)) +
+  geom_point(color = "darkred") +
+  geom_text(aes(label = action), vjust = -0.5, size = 3) +
+  labs(title = "Backward Elimination Path", x = "Step", y = "Action") +
+  theme_minimal()
+```
