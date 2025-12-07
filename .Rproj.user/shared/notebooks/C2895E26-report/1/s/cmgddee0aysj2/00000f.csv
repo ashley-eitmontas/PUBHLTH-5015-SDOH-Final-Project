@@ -1,0 +1,7 @@
+"0","library(readr)"
+"0","library(knitr)"
+"0",""
+"0","# Load modeling dataset created by analysis script"
+"0","model_df <- read_csv(""results/model_df.csv"")"
+"2","Error: 'results/model_df.csv' does not exist in current working directory ('C:/Users/ashle/OneDrive - The Ohio State University/AU25-AshPuter/AU25-AshPuter/PUBHLTH 5015/Final Project (GitHub)/PUBHLTH-5015-SDOH-Final-Project/docs').
+"

@@ -1,0 +1,4 @@
+"0","knitr::include_graphics(""figs/asthma_choropleth.png"")"
+"2","Error in knitr::include_graphics(""figs/asthma_choropleth.png"") : 
+  Cannot find the file(s): ""figs/asthma_choropleth.png""
+"
