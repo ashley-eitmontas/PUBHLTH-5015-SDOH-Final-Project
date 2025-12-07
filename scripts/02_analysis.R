@@ -29,6 +29,51 @@ appalachian_wide <- appalachian_wide %>%
          unemployment_rate = `Unemployment Rate`,
          median_household_income = `Median Household Income`,
          hs_less_than_rate = `25 Or Older With Less Than Hs Degree Rate`)
+# Define predictors
+predictors <- c("poverty_rate", "uninsured_rate", "unemployment_rate",
+                "median_household_income", "hs_less_than_rate")
+
+# Define backward elimination function
+backward_elimination <- function(df, outcome, predictors, alpha = 0.05) {
+  current_preds <- predictors
+  elimination_path <- c()
+  repeat {
+    frm <- stats::as.formula(
+      paste(outcome, "~", paste(current_preds, collapse = " + "))
+    )
+    fit <- stats::lm(frm, data = df)
+    coefs <- summary(fit)$coefficients
+    idx <- rownames(coefs) != "(Intercept)"
+    pvals <- coefs[idx, 4]
+    
+    if (any(is.na(pvals))) {
+      na_terms <- names(pvals)[is.na(pvals)]
+      removal <- na_terms[1]
+      elimination_path <- c(elimination_path, paste0("Removed (NA p): ", removal))
+      current_preds <- setdiff(current_preds, removal)
+      if (length(current_preds) == 0) return(list(model = fit, predictors = current_preds, path = elimination_path))
+      next
+    }
+    
+    max_p <- max(pvals)
+    worst_term <- names(which.max(pvals))
+    if (max_p > alpha) {
+      elimination_path <- c(elimination_path, paste0("Removed: ", worst_term, " (p = ", signif(max_p, 3), ")"))
+      current_preds <- setdiff(current_preds, worst_term)
+      if (length(current_preds) == 0) return(list(model = fit, predictors = current_preds, path = elimination_path))
+    } else {
+      return(list(model = fit, predictors = current_preds, path = elimination_path))
+    }
+  }
+}
+
+# Run backward elimination
+be <- backward_elimination(model_df, "asthma_rate", predictors, alpha = 0.05)
+
+# Save outputs
+saveRDS(full_model, "results/full_model.rds")
+write_csv(model_df, "results/model_df.csv")
+saveRDS(be, "results/backward_elimination.rds")
 
 # Build modeling dataset
 needed <- c("asthma_rate","poverty_rate","uninsured_rate","unemployment_rate",

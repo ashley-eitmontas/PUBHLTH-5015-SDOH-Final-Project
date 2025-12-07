@@ -7,7 +7,7 @@
     "contents": "",
     "dirty": false,
     "created": 1765143584591.0,
-    "source_on_save": false,
+    "source_on_save": true,
     "relative_order": 5,
     "properties": {
         "tempName": "Untitled1",
@@ -17,11 +17,11 @@
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1765143814,
+    "lastKnownWriteTime": 1765145721,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1765143814227,
+    "last_content_update": 1765145721886,
     "read_only": false,
     "read_only_alternatives": []
 }
