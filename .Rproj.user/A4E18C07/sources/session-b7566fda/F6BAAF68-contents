@@ -2,7 +2,9 @@
 title: "Final Project Report"
 author: "Ashley Eitmontas"
 date: "2025-12-07"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ## Introduction
