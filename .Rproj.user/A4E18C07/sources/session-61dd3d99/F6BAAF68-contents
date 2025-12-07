@@ -36,7 +36,8 @@ library(readr)
 library(knitr)
 
 # Load modeling dataset created by analysis script
-model_df <- read_csv("results/model_df.csv")
+model_df <- read_csv("PUBHLTH-5015-SDOH-Final-Project/results/model_df.csv
+")
 
 # Show first 10 rows as a sample
 knitr::kable(head(model_df, 10), caption = "Sample of modeling dataset (first 10 rows)")
@@ -44,20 +45,21 @@ knitr::kable(head(model_df, 10), caption = "Sample of modeling dataset (first 10
 ```
 
 ```{r}
-knitr::include_graphics("figs/asthma_choropleth.png")
+knitr::include_graphics("../figs/asthma_choropleth.png")
+
 ```
 
 ```{r scatter-asthma-vs-poverty}
-knitr::include_graphics("figs/scatter_asthma_vs_poverty_rate.png")
-
+knitr::include_graphics("../figs/scatter_asthma_vs_poverty_rate.png")
+knitr::include_graphics("../figs/scatter_asthma_vs_median_household_income.png")
 ```
 
 ```{r model-diagnostics}
-knitr::include_graphics("figs/model_diagnostics.png")
+knitr::include_graphics("../figs/model_diagnostics.png")
 ```
 
 ```{r backward-elimnation-path}
-knitr::include_graphics("figs/backward_elimination_path.png")
+knitr::include_graphics("../figs/backward_elimination_path.png")
 ```
 
 #### Individual County Metrics

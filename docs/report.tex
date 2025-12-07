@@ -1,0 +1,307 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Final Project Report},
+  pdfauthor={Ashley Eitmontas},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Final Project Report}
+\author{Ashley Eitmontas}
+\date{2025-12-07}
+
+\begin{document}
+\maketitle
+
+\subsection{Introduction}\label{introduction}
+
+Asthma remains a pressing public health concern across the United
+States, particularly within rural communities which often experience
+disproportionately high rates of the chronic disease. Asthma, a chronic
+inflammatory disease of the lungs, is shaped not only by biology but
+also by structural inequalities. In Ohio, the lifetime asthma prevalence
+rates are significant, affected 16.09\% of adults and 9.73\% of
+children, while current asthma affects 11.39\% of adults and 6.81\% of
+children (ODH).
+
+In Ohio, particularly in rural and Appalachian counties, factors such as
+economic hardship and limited healthcare access contribute to elevated
+asthma prevalence. This study's purpose is to identify which social
+determinants of health (SDOH) most strongly predict asthma prevalence
+across these counties using publicly available data indicators from
+DataOhio.
+
+\subsection{Data Description}\label{data-description}
+
+This study utilized the Social Determinants of Health data set sourced
+from DataOhio, which provided county-level SDOH indicators. The analysis
+was limited to 32 Appalachian counties in Ohio, including the following:
+
+\emph{Adams County, Ashtabula County, Athens County, Belmont County,
+Brown County, Carroll County, Clermont County, Columbiana County,
+Coshocton County, Gallia County, Guernsey County, Harrison County,
+Highland County, Hocking County, Holmes County, Jackson County,
+Jefferson County, Lawrence County, Mahoning County, Meigs County, Monroe
+County, Morgan County, Muskingum County, Noble County, Perry County,
+Pike County, Ross County, Scioto County, Trumbull County, Tuscarawas
+County, Vinton County}
+
+The selected predictor variables examined in this study include poverty
+rate, median household income, unemployment rate, educational attainment
+(defined as the rate of individuals 25 years or older with less than a
+high school degree), and uninsured rate (which measures healthcare
+access). The outcome variable studies was the asthma prevalence rate.
+
+\subsection{Methods}\label{methods}
+
+The primary analysis approach utilized in this study was Multiple Linear
+Regression (MLR) implemented in R, focusing on county-level data. We had
+two central aims to the study. Firstly, aim one was to use MLR to
+measure the relationship between asthma rates and the key predictors
+(poverty, insurance coverage, unemployment, income, and education). The
+second aim was to determine which social determinants are statistically
+significant drivers of asthma disparities in Appalachian counties in
+Ohio. Model selection was guided by theory and diagnostics, including
+multicollinearity diagnostics. Specifically, Backward Elimination
+Multiple Linear Regression was employed to narrow the final set of
+predictors. The strength and reliability of the associations were
+assessed using the adjusted R\textsuperscript{2}, p-values, and residual
+diagnostics.
+
+\subsection{Results}\label{results}
+
+\paragraph{Multiple Linear Regression Backward Elimination
+Findings}\label{multiple-linear-regression-backward-elimination-findings}
+
+The full multiple linear regression model relating the selected SDOH
+indicators to asthma prevalence was satistically significant, with a
+p-value of 0.0001121. The adjusted R\textsuperscript{2} value was
+.05305, which indicates that the predictors retained (poverty rate and
+median household income) explain approximately 53\% if the variation in
+asthma prevalence across the Appalachian counties.
+
+\emph{*Insert tables and figures generated by code here}*
+
+\begin{verbatim}
+## Warning: package 'readr' was built under R version 4.5.2
+\end{verbatim}
+
+\begin{verbatim}
+## Rows: 0 Columns: 1
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (1): PUBHLTH-5015-SDOH-Final-Project/results/model_df.csv
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{longtable}[]{@{}l@{}}
+\caption{Sample of modeling dataset (first 10 rows)}\tabularnewline
+\toprule\noalign{}
+PUBHLTH-5015-SDOH-Final-Project/results/model\_df.csv \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+PUBHLTH-5015-SDOH-Final-Project/results/model\_df.csv \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"../figs/asthma\_choropleth.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=33.33in]{../figs/asthma_choropleth}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"../figs/scatter\_asthma\_vs\_poverty\_rate.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=29.17in]{../figs/scatter_asthma_vs_poverty_rate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"../figs/scatter\_asthma\_vs\_median\_household\_income.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=29.17in]{../figs/scatter_asthma_vs_median_household_income}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"../figs/model\_diagnostics.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=16.67in]{../figs/model_diagnostics}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"../figs/backward\_elimination\_path.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[width=37.5in]{../figs/backward_elimination_path}
+
+\paragraph{Individual County Metrics}\label{individual-county-metrics}
+
+When linear regressions were run for each predictor on a county level,
+poverty and income showed the most consistent and significant results.
+Poverty Rate was significant in 22 out of 32 counties, and Median
+Household Income was significant in 20 out of 32 counties. This finding
+suggests that these two metrics are the strongest predictors when
+looking at individual regressions for each county. Additionally, the
+larger counties tended to have more significant results for each metric
+regression, likely due to a larger data set contributing to more
+accurate results.
+
+\emph{*Insert tables and figures generated by code here}*
+
+\subsection{Conclusions}\label{conclusions}
+
+Asthma outcomes in Appalachian Ohio counties are strongly shaped by
+structural determinants: poverty and income. These two metrics were the
+strongest predictors when looking at individual county regressions and
+were the only significant predictors retained in the final backward
+elimination multiple linear regression model. The findings indicate that
+asthma is likely related to poorer living conditions and other adverse
+health outcomes associated with poverty. These results produced rich
+implications for future research and policy. The fact that
+non-significant predictors included the uninsured rate and unemployment
+rate suggests that the broader socioeconomic context outweighs
+individual access measures in determining asthma prevalence at the
+county level in Appalachian Ohio. Therefore, tackling asthma disparities
+requires equity-focused strategies that move beyond healthcare access
+alone. Policy and public health efforts should look more upstream and
+focus on poverty reduction and economic development within Appalachian
+communities to address the root causes of inequity.
+
+As with any study, it is also essential to include limitations within
+this research. The analysis is observational and cross-sectional,
+meaning it can only establish associations, not causality. Furthermore,
+the adjusted R\textsuperscript{2} of 0.5305 shows that approximately
+47\% of the variation in asthma prevalence is unexplained by the
+included variables, suggesting that other unmeasured factors--such as
+environmental exposures (air quality, industrial sites, housing quality)
+and temporal dynamics--likely play a major role in asthma prevalence.
+The analysis is also limited to county-level data in Appalachian Ohio,
+which could mask important neighborhood or household-level disparities,
+and hinders generalization of the results to other non-Appalachian Ohio
+counties.
+
+\end{document}
