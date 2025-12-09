@@ -1,0 +1,221 @@
+---
+title: "Asthma Regression Markdown File"
+output: html_document
+date: "2025-12-09"
+---
+
+
+```{r}
+source("../scripts/data_prep_and_analysis.R")
+
+```
+
+### Median Household Income x Asthma Rate
+
+```{r}
+# Get regression results 
+summary(app_model_income)
+
+#Plot the data
+ggplot(app_combined_asthma, aes(x = mean_income, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Income in App. Counties",
+    x = "Mean Income ($)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Compare to all Ohio Counties
+
+summary(asthma_model_all_income)
+
+ggplot(combined_asthma, aes(x = mean_income, y = mean_asthma, color = highlight)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  scale_color_manual(values = c("Other" = "steelblue", "Appalachian Counties" = "darkgreen")) +
+  labs(
+    title = "Asthma Rate vs Mean Income in Ohio Counties",
+    x = "Mean Income ($)",
+    y = "Mean Asthma Rate (%)",
+    color = "County Type"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+### Poverty Rate x Asthma Rate
+
+```{r}
+summary(app_model_poverty)
+
+ggplot(app_combined_asthma_poverty, aes(x = mean_poverty, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Poverty in App. Counties",
+    x = "Mean Poverty ($)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+### Uninsured Rate x Asthma Rate
+
+```{r}
+summary(model_uninsured)
+
+ggplot(asthma_uninsured, aes(x = mean_uninsured, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Uninsured Rate in App. Counties",
+    x = "Mean Uninsured Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Without outlier
+
+summary(model_uninsured_clean)
+
+ggplot(asthma_uninsured_clean, aes(x = mean_uninsured, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Uninsured Rate in App. Counties w/o outlier",
+    x = "Mean Uninsured Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(size = 16, margin = margin(b = 10)),
+    plot.margin = margin(t = 20, r = 10, b = 10, l = 10)
+  )
+
+```
+
+### Unemployed Rate x Asthma Rate
+```{r}
+summary(unemployed_model)
+ggplot(asthma_unemployed, aes(x = mean_unemployed, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Unemployment Rate in App. Counties",
+    x = "Mean Unemployment Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+### 25 and older w/ less than HS Rate x Asthma Rate
+```{r}
+summary(education_model)
+ggplot(education_asthma, aes(x = mean_education, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Education Level in App. Counties",
+    x = "Mean % 25+ With < HS Degree",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+### Heatmap for individual counties
+```{r}
+ggplot(model_results, aes(x = metric_wrapped, y = county_name, fill = significant)) +
+  geom_tile(color = "white", width = 0.9, height = 1.2) +
+  scale_fill_manual(values = c("Significant" = "blue", "Not Significant" = "#d3d3d3")) +
+  labs(
+    title = "Significant Predictors of Asthma Rate by County",
+    x = "Predictor",
+    y = "County",
+    fill = "Significant"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10),  # FIXED
+    axis.text.y = element_text(size = 10),
+    axis.title = element_text(size = 13),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    panel.grid = element_blank()
+  )
+```
+
+### Select individual counties
+
+```{r}
+# Lawrence County
+ggplot(lawrence_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(~ metric, scales = "free_x") +  # one plot per metric
+  labs(title = "Lawrence County Asthma Rate vs Each Metric",
+       x = "Metric Value",
+       y = "Asthma Rate") +
+  theme_minimal()
+lawrence_data$results
+
+# Meigs County
+ggplot(meigs_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)   # <-- wraps long names
+  ) +
+  labs(
+    title = "Meigs County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+
+meigs_data$results
+
+# Muskingum County
+ggplot(muskingum_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)   # <-- wraps long names
+  ) +
+  labs(
+    title = "Muskingum County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+
+muskingum_data$results
+
+# Scioto
+ggplot(scioto_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)
+  ) +
+  labs(
+    title = "Scioto County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+
+scioto_data$results
+
+```
