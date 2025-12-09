@@ -1,4 +1,4 @@
-# PUBHLTH 5015 Final Project: Social Determinants of Health
+# PUBHLTH 5015 Final Project: Asthma Prevalence in Appalchian Ohio and Social Determinants of Health
 
 Ashley Eitmontas' and Ella Anderson's final project for PUBHLTH 5015 (Dr. Rempala).
 
