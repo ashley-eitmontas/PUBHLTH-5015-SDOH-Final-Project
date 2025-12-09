@@ -9,7 +9,7 @@ output:
 
 ## Introduction
 
-Asthma remains a pressing public health concern across the United States, particularly within rural communities which often experience disproportionately high rates of the chronic disease. Asthma, a chronic inflammatory disease of the lungs, is shaped not only by biology but also by structural inequalities. In Ohio, the lifetime asthma prevalence rates are significant, affected 16.09% of adults and 9.73% of children, while current asthma affects 11.39% of adults and 6.81% of children (ODH).
+Asthma remains a pressing public health concern across the United States, particularly within rural communities which often experience disproportionately high rates of the chronic disease. Asthma, a chronic inflammatory disease of the lungs, is shaped not only by biology but also by structural inequalities. In Ohio, the lifetime asthma prevalence rates are significant, affected 16.09% of adults and 9.73% of children, while current asthma affects 11.39% of adults and 6.81% of children (Ohio Department of Health 2022).
 
 In Ohio, particularly in rural and Appalachian counties, factors such as economic hardship and limited healthcare access contribute to elevated asthma prevalence. This study's purpose is to identify which social determinants of health (SDOH) most strongly predict asthma prevalence across these counties using publicly available data indicators from DataOhio.
 
