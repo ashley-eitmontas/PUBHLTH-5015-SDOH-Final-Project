@@ -57,6 +57,24 @@ app_combined_asthma<- inner_join(app_income, app_asthma, by = "county_name")
 # Run the regression model using the combined data set
 app_model_income <- lm(mean_income~ mean_asthma, data = app_combined_asthma)
 
+# Create scatter plot
+income_asthma_plot<- ggplot(app_combined_asthma, aes(x = mean_income, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Income in App. Counties",
+    x = "Mean Income ($)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+income_asthma_plot
+ggsave(
+  filename = here::here("figs", "income_vs_asthma_county_avg.png"), 
+  plot = income_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
 
 # ---- Compare the Appalachian county regression with all Ohio counties -----
 
@@ -87,6 +105,26 @@ combined_asthma <- combined_asthma %>%
                                                  "Pike", "Ross", "Scioto", "Vinton", "Washington"), "Appalachian Counties", "Other"))
 asthma_model_all_income <- lm(mean_income~ mean_asthma, data = combined_asthma)
 
+combined_income_asthma_plot <- ggplot(combined_asthma, aes(x = mean_income, y = mean_asthma, color = highlight)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  scale_color_manual(values = c("Other" = "steelblue", "Appalachian Counties" = "darkgreen")) +
+  labs(
+    title = "Asthma Rate vs Mean Income in Ohio Counties",
+    x = "Mean Income ($)",
+    y = "Mean Asthma Rate (%)",
+    color = "County Type"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggsave(
+  filename = here::here("figs", "income_vs_asthma_county_avg_combined.png"), 
+  plot = combined_income_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
+
 # ---- Poverty Rate - County Average -----
 
 # filter out poverty rate data
@@ -106,6 +144,24 @@ app_combined_asthma_poverty<- inner_join(app_poverty, app_asthma, by = "county_n
 # run linear regression for poverty rate and asthma rate
 app_model_poverty <- lm(mean_poverty~ mean_asthma, data = app_combined_asthma_poverty)
 
+poverty_asthma_plot<- ggplot(app_combined_asthma_poverty, aes(x = mean_poverty, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Poverty in App. Counties",
+    x = "Mean Poverty ($)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggsave(
+  filename = here::here("figs", "poverty_vs_asthma_county_avg.png"), 
+  plot = poverty_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
+
 # ---- Uninsured Rate - County Average -----
 
 app_uninsured <- app_data %>%
@@ -121,12 +177,52 @@ app_uninsured <- app_data %>%
 asthma_uninsured <- inner_join(app_uninsured, app_asthma, by = "county_name")
 model_uninsured <- lm(mean_uninsured ~ mean_asthma, data = asthma_uninsured)
 
+uninsured_asthma_plot <- ggplot(asthma_uninsured, aes(x = mean_uninsured, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Uninsured Rate in App. Counties",
+    x = "Mean Uninsured Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggsave(
+  filename = here::here("figs", "uninsured_vs_asthma_county_avg.png"), 
+  plot = uninsured_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
+
 # Remove outlier to clean data (Holmes County)
 
 asthma_uninsured_clean <- asthma_uninsured %>%
   filter(county_name != "Holmes")
 
 model_uninsured_clean <- lm(mean_uninsured ~ mean_asthma, data = asthma_uninsured_clean)
+
+clean_uninsured_asthma_plot <- ggplot(asthma_uninsured_clean, aes(x = mean_uninsured, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Uninsured Rate in App. Counties w/o outlier",
+    x = "Mean Uninsured Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(size = 16, margin = margin(b = 10)),
+    plot.margin = margin(t = 20, r = 10, b = 10, l = 10)
+  )
+
+ggsave(
+  filename = here::here("figs", "clean_uninsured_vs_asthma_county_avg.png"), 
+  plot = clean_uninsured_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
 
 # ---- Unemployed Rate - County Average -----
 
@@ -142,6 +238,23 @@ app_unemployed <- app_data %>%
 asthma_unemployed <- inner_join(app_unemployed, app_asthma, by = "county_name")
 unemployed_model <- lm(mean_unemployed ~ mean_asthma, data = asthma_unemployed)
 
+unemployed_asthma_plot <- ggplot(asthma_unemployed, aes(x = mean_unemployed, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Mean Unemployment Rate in App. Counties",
+    x = "Mean Unemployment Rate (%)",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+ggsave(
+  filename = here::here("figs", "unemployment_vs_asthma_county_avg.png"), 
+  plot = unemployed_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
+
 # ---- 25 or Older with Less than a HS Degree - County Average ----
 
 app_education <- app_data %>%
@@ -155,7 +268,22 @@ app_education <- app_data %>%
   summarise(mean_education = mean(metric_value, na.rm = TRUE), .groups = "drop")
 education_asthma <- inner_join(app_education, app_asthma, by = "county_name")
 education_model <- lm(mean_education ~ mean_asthma, data = education_asthma)
-
+education_asthma_plot <- ggplot(education_asthma, aes(x = mean_education, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Education Level in App. Counties",
+    x = "Mean % 25+ With < HS Degree",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+ggsave(
+  filename = here::here("figs", "education_vs_asthma_county_avg.png"), 
+  plot = education_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
 
 # ---- Regressions for each metric and each county using geo_ID (for the heatmap) ---
 
@@ -273,4 +401,144 @@ meigs_data <- run_county_models(meigs)
 muskingum_data <- run_county_models(muskingum)
 scioto_data <- run_county_models(scioto)
 tuscarawas_data <- run_county_models(tuscarawas)
+
+# Lawrence County
+lawrence_plot <- ggplot(lawrence_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(~ metric, scales = "free_x") +  # one plot per metric
+  labs(title = "Lawrence County Asthma Rate vs Each Metric",
+       x = "Metric Value",
+       y = "Asthma Rate") +
+  theme_minimal()
+ggsave(
+  filename = here::here("figs", "lawrence.png"), 
+  plot = lawrence_plot, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
+
+# Meigs County
+meigs_plot <- ggplot(meigs_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)   
+  ) +
+  labs(
+    title = "Meigs County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+ggsave(
+  filename = here::here("figs", "meigs.png"), 
+  plot = meigs_plot, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
+# Muskingum
+muskingum_plot <- ggplot(muskingum_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)   # <-- wraps long names
+  ) +
+  labs(
+    title = "Muskingum County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+ggsave(
+  filename = here::here("figs", "muskingum.png"), 
+  plot = muskingum_plot, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
+
+# Scioto
+scioto_plot <- ggplot(scioto_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)
+  ) +
+  labs(
+    title = "Scioto County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+ggsave(
+  filename = here::here("figs", "scioto.png"), 
+  plot = scioto_plot, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
+
+
+# Tuscarawas
+tuscarawas_plot <- ggplot(tuscarawas_data$long_data, aes(x = value, y = `Asthma Rate`)) +
+  geom_point(color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(
+    ~ metric,
+    scales = "free_x",
+    labeller = label_wrap_gen(width = 15)   # <-- wraps long names
+  ) +
+  labs(
+    title = "Tuscarawas County Asthma Rate vs Each Metric",
+    x = "Metric Value",
+    y = "Asthma Rate"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 10))
+ggsave(
+  filename = here::here("figs", "tuscarawas.png"), 
+  plot = tuscarawas_plot, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
+
+heatmap <- ggplot(model_results, aes(x = metric_wrapped, y = county_name, fill = significant)) +
+  geom_tile(color = "white", width = 0.9, height = 1.2) +
+  scale_fill_manual(values = c("Significant" = "blue", "Not Significant" = "grey")) +
+  labs(
+    title = "Significant Predictors of Asthma Rate by County",
+    x = "Predictor",
+    y = "County",
+    fill = "Significant"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10),  
+    axis.text.y = element_text(size = 10),
+    axis.title = element_text(size = 13),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    panel.grid = element_blank()
+  )
+ggsave(
+  filename = here::here("figs", "significance_heatmap.png"), 
+  plot = heatmap, 
+  width = 9, 
+  height = 6,
+  units = "in"
+)
 
