@@ -4,7 +4,6 @@ output: html_document
 date: "2025-12-09"
 ---
 
-
 ```{r}
 source("../scripts/data_prep_and_analysis.R")
 
@@ -137,6 +136,7 @@ ggsave(
 ```
 
 ### Unemployed Rate x Asthma Rate
+
 ```{r}
 summary(unemployed_model)
 unemployed_asthma_plot <- ggplot(asthma_unemployed, aes(x = mean_unemployed, y = mean_asthma)) +
@@ -160,6 +160,7 @@ ggsave(
 ```
 
 ### 25 and older w/ less than HS Rate x Asthma Rate
+
 ```{r}
 summary(education_model)
 education_asthma_plot <- ggplot(education_asthma, aes(x = mean_education, y = mean_asthma)) +
@@ -183,6 +184,7 @@ ggsave(
 ```
 
 ### Heatmap for individual counties
+
 ```{r}
 heatmap <- ggplot(model_results, aes(x = metric_wrapped, y = county_name, fill = significant)) +
   geom_tile(color = "white", width = 0.9, height = 1.2) +
