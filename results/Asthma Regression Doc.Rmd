@@ -1,0 +1,114 @@
+---
+title: "Asthma Regression Markdown File"
+output: html_document
+date: "2025-12-09"
+---
+
+```{r}
+source("../scripts/data_prep_and_analysis.R")
+
+```
+
+### Median Household Income x Asthma Rate
+
+```{r}
+# Get regression results 
+summary(app_model_income)
+
+#Plot the data
+
+income_asthma_plot
+
+# Compare to all Ohio Counties
+
+summary(asthma_model_all_income)
+
+combined_income_asthma_plot
+```
+
+### Poverty Rate x Asthma Rate
+
+```{r}
+summary(app_model_poverty)
+
+poverty_asthma_plot
+```
+
+### Uninsured Rate x Asthma Rate
+
+```{r}
+summary(model_uninsured)
+
+uninsured_asthma_plot
+
+# Without outlier
+
+summary(model_uninsured_clean)
+
+clean_uninsured_asthma_plot
+
+```
+
+### Unemployed Rate x Asthma Rate
+
+```{r}
+summary(unemployed_model)
+unemployed_asthma_plot
+
+```
+
+### 25 and older w/ less than HS Rate x Asthma Rate
+
+```{r}
+summary(education_model)
+education_asthma_plot <- ggplot(education_asthma, aes(x = mean_education, y = mean_asthma)) +
+  geom_point(color = "darkgreen", size = 3, alpha = 0.7) +  
+  geom_smooth(method = "lm", color = "red", se = TRUE) +    
+  labs(
+    title = "Asthma Rate vs Education Level in App. Counties",
+    x = "Mean % 25+ With < HS Degree",
+    y = "Mean Asthma Rate (%)"
+  ) +
+  theme_minimal(base_size = 14)
+education_asthma_plot
+ggsave(
+  filename = here::here("figs", "education_vs_asthma_county_avg.png"), 
+  plot = education_asthma_plot, 
+  width = 8, 
+  height = 5,
+  units = "in"
+)
+education_asthma_plot
+```
+
+### Heatmap for individual counties
+
+```{r}
+heatmap
+```
+
+### Select individual counties
+
+```{r}
+# Lawrence County
+lawrence_plot
+lawrence_data$results
+
+# Meigs County
+
+meigs_plot
+meigs_data$results
+
+# Muskingum County
+muskingum_plot
+muskingum_data$results
+
+# Scioto
+scioto_plot
+scioto_data$results
+
+# Tuscarawas
+tuscarawas_plot
+tuscarawas_data$results
+
+```
