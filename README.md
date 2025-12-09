@@ -6,7 +6,7 @@ Ashley Eitmontas' and Ella Anderson's final project for PUBHLTH 5015 (Dr. Rempal
 
 This repository contains the final project for PUBHLTH 5015 (Dr. Rempala).
 
-Our analysis explores the relationship between social determinants of health (SDOH) such as insurance coverage, median household income, educational attainment, poverty rates, and unemployment rates and asthma prevalence outcomes. Using public health datasets, we analyze disparities, visualize geographic patterns, and interpret findings in the context of community health. The goal is to demonstrate how data analysis can inform public health policy and community interventions.
+Our analysis explores the relationship between social determinants of health (SDOH) such as insurance coverage, median household income, educational attainment, poverty rates, and unemployment rates and asthma prevalence outcomes. Using SDOH census data published by the Ohio Department of Health, we conducted linear regressions to identify significant associations between these metrics and asthma rates. We assessed relationships both at the county level and the census tract level to capture broad trends as well as patterns on a local level. The goal is to demonstrate how data analysis can inform public health policy and community interventions.
 
 ## Repository Structure:
 
@@ -30,7 +30,7 @@ To reproduce the analysis:
 
 -   **Data Cleaning:** Scripts in `scripts/` prepare datasets for analysis.
 
--   **Analysis:** Regression models and descriptive statistics saved in `results/`.
+-   **Analysis:** Regression models, data tables, and results saved in `results/`.
 
 -   **Figures:** Maps and plots in `figs/`.
 
