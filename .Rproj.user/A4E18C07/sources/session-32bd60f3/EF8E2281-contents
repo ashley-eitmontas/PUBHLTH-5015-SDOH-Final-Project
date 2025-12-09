@@ -6,11 +6,14 @@ set.seed(2025)
 library(here)
 library(rmarkdown)
 
+getwd()
+
 # Run pipeline scripts
-source(here("scripts", "00_load_clean.R"))   # Load and clean raw data
-source(here("scripts", "01_figures.R"))      # Generate initial figures/maps
-source(here("scripts", "02_analysis.R"))     # Build models and run analysis
-source(here("scripts", "03_plots.R"))        # Generate plots and diagnostics
+source(here("scripts", "00_load_clean.R"))       # Load and clean raw data
+source(here("scripts", "01_figures.R"))          # Generate initial figures/maps
+source(here("scripts", "02_analysis.R"))         # Build models and run analysis
+source(here("scripts", "03_plots.R"))            # Generate plots and diagnostics
+source(here("scripts", "county_regressions.R"))  # Creates county-level regressions
 
 # Render final report
 rmarkdown::render(
