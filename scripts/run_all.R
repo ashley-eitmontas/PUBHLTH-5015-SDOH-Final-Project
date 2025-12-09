@@ -18,5 +18,5 @@ source(here("scripts", "county_regressions.R"))  # Creates county-level regressi
 # Render final report
 rmarkdown::render(
   input = here("docs", "report.Rmd"),
-  output_file = here("docs", "report.pdf")
+  output_file = here("docs", "report.html")
 )
