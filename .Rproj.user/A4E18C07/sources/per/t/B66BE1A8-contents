@@ -97,10 +97,6 @@ dev.off()
 # 4) Backward elimination path visualization
 # ============================================
 
-# If you saved the elimination steps (be$path), use them; else, construct a basic summary.
-# Preferred: readRDS("results/backward_elimination.rds") in analysis script.
-# Fallback: if be object not available, create a simple placeholder from model terms.
-
 if (file.exists("results/backward_elimination.rds")) {
   be <- readRDS("results/backward_elimination.rds")
   elim_steps <- be$path
