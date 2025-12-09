@@ -1,18 +1,36 @@
 # scripts/02_analysis.R
-library(dplyr)
-library(stringr)
-library(tidyr)
-library(readr)
+# Purpose: Build modeling dataset, run regression analysis, and perform backward elimination
+# Author(s): Ashley Eitmontas, Ella Anderson
+# Date: December 2025
 
-SDOH <- read_rds("results/clean.rds")
+# -------------------------------
+# Load required packages
+# -------------------------------
+library(dplyr)      # Data manipulation
+library(stringr)    # String operations
+library(tidyr)      # Reshaping data
+library(readr)      # Read/write data
+library(here)       # Reproducible file paths
 
-appalachian_counties <- c("Adams","Athens","Ashtabula","Belmont","Brown","Carroll","Columbiana",
-                          "Coshocton","Clermont","Gallia","Guernsey","Harrison","Highland",
-                          "Hocking","Holmes","Jackson","Jefferson","Lawrence","Meigs","Monroe",
-                          "Morgan","Mahoning","Muskingum","Noble","Perry","Pike","Ross","Scioto",
-                          "Trumbull","Tuscarawas","Vinton","Washington")
+# -------------------------------
+# Load cleaned SDOH data
+# -------------------------------
+SDOH <- read_rds(here("results", "clean.rds"))
 
-# Pivot wide
+# -------------------------------
+# Define Appalachian counties
+# -------------------------------
+appalachian_counties <- c(
+  "Adams","Athens","Ashtabula","Belmont","Brown","Carroll","Columbiana",
+  "Coshocton","Clermont","Gallia","Guernsey","Harrison","Highland",
+  "Hocking","Holmes","Jackson","Jefferson","Lawrence","Meigs","Monroe",
+  "Morgan","Mahoning","Muskingum","Noble","Perry","Pike","Ross","Scioto",
+  "Trumbull","Tuscarawas","Vinton","Washington"
+)
+
+# -------------------------------
+# Pivot data to wide format
+# -------------------------------
 appalachian_wide <- SDOH %>%
   mutate(county_name = str_to_title(county_name)) %>%
   filter(county_name %in% appalachian_counties) %>%
@@ -21,19 +39,42 @@ appalachian_wide <- SDOH %>%
   summarise(metric_value = first(metric_value), .groups = "drop") %>%
   pivot_wider(names_from = metric_name, values_from = metric_value)
 
-# Rename columns
+# -------------------------------
+# Rename columns for clarity
+# -------------------------------
 appalachian_wide <- appalachian_wide %>%
-  rename(asthma_rate = `Asthma Rate`,
-         poverty_rate = `Poverty Rate`,
-         uninsured_rate = `Uninsured Rate`,
-         unemployment_rate = `Unemployment Rate`,
-         median_household_income = `Median Household Income`,
-         hs_less_than_rate = `25 Or Older With Less Than Hs Degree Rate`)
-# Define predictors
-predictors <- c("poverty_rate", "uninsured_rate", "unemployment_rate",
-                "median_household_income", "hs_less_than_rate")
+  rename(
+    asthma_rate = `Asthma Rate`,
+    poverty_rate = `Poverty Rate`,
+    uninsured_rate = `Uninsured Rate`,
+    unemployment_rate = `Unemployment Rate`,
+    median_household_income = `Median Household Income`,
+    hs_less_than_rate = `25 Or Older With Less Than Hs Degree Rate`
+  )
 
+# -------------------------------
+# Build modeling dataset
+# -------------------------------
+needed <- c(
+  "asthma_rate","poverty_rate","uninsured_rate","unemployment_rate",
+  "median_household_income","hs_less_than_rate"
+)
+
+model_df <- appalachian_wide %>%
+  select(county_name, all_of(needed)) %>%
+  filter(complete.cases(across(all_of(needed))))
+
+# -------------------------------
+# Define predictors
+# -------------------------------
+predictors <- c(
+  "poverty_rate", "uninsured_rate", "unemployment_rate",
+  "median_household_income", "hs_less_than_rate"
+)
+
+# -------------------------------
 # Define backward elimination function
+# -------------------------------
 backward_elimination <- function(df, outcome, predictors, alpha = 0.05) {
   current_preds <- predictors
   elimination_path <- c()
@@ -67,27 +108,23 @@ backward_elimination <- function(df, outcome, predictors, alpha = 0.05) {
   }
 }
 
+# -------------------------------
+# Fit full model
+# -------------------------------
+full_model <- lm(
+  asthma_rate ~ poverty_rate + uninsured_rate + unemployment_rate +
+    median_household_income + hs_less_than_rate,
+  data = model_df
+)
+
+# -------------------------------
 # Run backward elimination
+# -------------------------------
 be <- backward_elimination(model_df, "asthma_rate", predictors, alpha = 0.05)
 
+# -------------------------------
 # Save outputs
-saveRDS(full_model, "results/full_model.rds")
-write_csv(model_df, "results/model_df.csv")
-saveRDS(be, "results/backward_elimination.rds")
-
-# Build modeling dataset
-needed <- c("asthma_rate","poverty_rate","uninsured_rate","unemployment_rate",
-            "median_household_income","hs_less_than_rate")
-
-model_df <- appalachian_wide %>%
-  select(county_name, all_of(needed)) %>%
-  filter(complete.cases(across(all_of(needed))))
-
-# Full model
-full_model <- lm(asthma_rate ~ poverty_rate + uninsured_rate + unemployment_rate +
-                   median_household_income + hs_less_than_rate, data = model_df)
-
-saveRDS(full_model, "results/full_model.rds")
-write_csv(model_df, "results/model_df.csv")
-# After computing be <- backward_elimination(...)
-saveRDS(be, "results/backward_elimination.rds")
+# -------------------------------
+saveRDS(full_model, here("results", "full_model.rds"))
+write_csv(model_df, here("results", "model_df.csv"))
+saveRDS(be, here("results", "backward_elimination.rds"))
